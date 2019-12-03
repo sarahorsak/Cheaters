@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
          current->nextCollision = NULL;
 
          //get hash key based off the chunk of words
-         int tableIndex = hashFunc(*current, tableSize);
+         int tableIndex = hash<std::string>{}(current->chunk);
          insertHash(hashTable, tableIndex, *current);
 
 
@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
             current->nextCollision = NULL;
 
             //get hash key based off chunk
-            int tableIndex = hashFunc(*current, tableSize);
+            int tableIndex = hash<std::string>{}(current->chunk);
             insertHash(hashTable, tableIndex, *current);
         }
 
@@ -170,12 +170,12 @@ int main(int argc, char *argv[])
 
     //print collision data
     for (int i = 0; i < collisions.size(); i++){
-        char file1 = (char)(collisions[i]->filename1 + 65);
-        char file2 = (char)(collisions[i]->filename2 + 65);
+        int file1 = (collisions[i]->filename1);
+        int file2 = (collisions[i]->filename2);
 
         cout << collisions[i]->num_collisions << ": "
-        << "filename" << file1 << ", "
-        << "filename" << file2 <<endl;
+        << files[file1] << ", "
+        << files[file2] <<endl;
     }
 
 }
@@ -199,11 +199,6 @@ string makeString(queue<string> words){
         words.pop();
     }
     return result;
-}
-
-//returns the hash key based off the chunk of info
-int hashFunc(hashNode node, int tableSize){
-    return ((node.chunk[0]) + (27 * node.chunk[1]) + (729 * node.chunk[2])) % tableSize;
 }
 
 //inserts the node into the correct spot in the hash array
