@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
             current->chunk = chunk;
             current->nextCollision = NULL;
             int tableIndex = hashFunc(*current, tableSize);
-            insertHash(*hashTable, tableIndex, *current);
+            insertHash(hashTable, tableIndex, *current);
 
 
 
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
                 current->chunk = chunk;
                 current->nextCollision = NULL;
                 int tableIndex = hashFunc(*current, tableSize);
-                insertHash(*hashTable, tableIndex, *current);
+                insertHash(hashTable, tableIndex, *current);
         }
 
     }
