@@ -10,6 +10,7 @@
 using namespace std;
 
 struct hashNode{
+    int filename;
     string chunk;
     hashNode *nextCollision;
 };
@@ -44,73 +45,81 @@ int main(int argc, char *argv[])
 
     getdir(dir,files);
 
-        for (unsigned int i = 0;i < files.size();i++) {
-            cout << i << files[i] << endl;
+    for (unsigned int i = 0;i < files.size();i++) {
+        cout << i << files[i] << endl;
+    }
+
+    int lengthOfChunks = atoi(argv[2]);
+    int num_similar = atoi(argv[3]);
+    static const int tableSize = 700001; //random prime number
+
+
+    int grid[files.size()][files.size()];          //create a 2d array to contain number of similarities
+
+    for(int i = 0; i < files.size(); i++){
+        for(int j = 0; j < files.size(); j++){        //initialize grid to 0
+            grid[i][j] = 0;
         }
+    }
 
-        int lengthOfChunks = atoi(argv[2]);
-        int num_similar = atoi(argv[3]);
-        static const int tableSize = 700001; //random prime number
+    //create hash table
+    hashNode* hashTable[tableSize];
+    for (int j = 0; j < tableSize; j++) {         //initialize table to NULL
+        hashTable[j] = NULL;
+    }
 
+    //for each file in the vector
+     for (int i = 0; i < files.size(); i++){
+         //open first file
+         ifstream myfile;
+         myfile.open(files[i].c_str());
 
-        int grid[files.size()][files.size()];          //create a 2d array to contain number of similarities
+         //create queue
+         queue<string> words = queue<string>();
+         string word;
 
-        for(int i = 0; i < files.size(); i++){
-            for(int j = 0; j < files.size(); j++){        //initialize grid to 0
-                grid[i][j] = 0;
-            }
-        }
+         //push first n words to queue
+         int index = 0;
+         while ((myfile >> word) && (index < lengthOfChunks)){
+             words.push(word);
+             index++;
+         }
 
-        //for each file in vector
-        for (int i = 0; i < files.size(); i++){
-            //open first file
-            ifstream myfile;
-            myfile.open(files[i].c_str());
-
-            //create hash table
-            hashNode* hashTable[tableSize];
-            for (int i = 0; i < tableSize; i++) {         //initialize table to NULL
-                hashTable[i] = NULL;
-            }
-
-            //create queue
-            queue<string> words = queue<string>();
-            string word;
-
-            //push first n words to queue
-            int index = 0;
-            while ((myfile >> word) && (index < lengthOfChunks)){
-                words.push(word);
-                index++;
-            }
-
-            //then move those to hash table
-            string chunk = makeString(words);
-            hashNode *current = new hashNode;
-            current->chunk = chunk;
-            current->nextCollision = NULL;
-            int tableIndex = hashFunc(*current, tableSize);
-            insertHash(hashTable, tableIndex, *current);
+         //then move the index of file name to hash table
+         //get hash key based off the chunk of words
+         string chunk = makeString(words);
+         hashNode *current = new hashNode;
+         current->chunk = chunk;
+         current->filename = i;
+         current->nextCollision = NULL;
+         int tableIndex = hashFunc(*current, tableSize);
+         insertHash(hashTable, tableIndex, *current);
 
 
 
         //pop first word, push next word
-            while ((myfile >> word)){
-                words.pop();
-                words.push(word);
-                //move to hash
-                string chunk = makeString(words);
-                hashNode *current = new hashNode;
-                current->chunk = chunk;
-                current->nextCollision = NULL;
-                int tableIndex = hashFunc(*current, tableSize);
-                insertHash(hashTable, tableIndex, *current);
+        while ((myfile >> word)){
+            words.pop();
+            words.push(word);
+            //move to hash
+            //get hash key based off chunk
+            string chunk = makeString(words);
+            hashNode *current = new hashNode;
+            current->chunk = chunk;
+            current->filename = i;
+            current->nextCollision = NULL;
+            int tableIndex = hashFunc(*current, tableSize);
+            insertHash(hashTable, tableIndex, *current);
         }
 
+    //hash every chunk of every file to same hash table
     }
 
+//need to go through hash table and get collisions into a 2D array
+//compare if collisions are > inputted collision number then print the file names
 }
 
+//makes the words from queue into a string chunk
 string makeString(queue<string> words){
     string result = "";
     while (!words.empty()){
@@ -118,12 +127,15 @@ string makeString(queue<string> words){
         result += word;
         words.pop();
     }
+    return result;
 }
 
+//returns the hash key based off the chunk of info
 int hashFunc(hashNode node, int tableSize){
     return ((node.chunk[0]) + (27 * node.chunk[1]) + (729 * node.chunk[2])) % tableSize;
 }
 
+//inserts the node into the correct spot in the hash array
 void insertHash(hashNode *hashTable[], int tableIndex, hashNode &node){
     if (hashTable[tableIndex] == NULL) {                        //if empty, add file node
         hashTable[tableIndex] = &node;
