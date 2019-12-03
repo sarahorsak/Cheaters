@@ -16,7 +16,7 @@ struct hashNode{
 
 string makeString(queue<string> words);
 int hashFunc(hashNode node, int tableSize);
-void insertHash(hashNode hashTable[], int tableIndex, hashNode &node);
+void insertHash(hashNode *hashTable[], int tableIndex, hashNode &node);
 
 
 
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
             current->chunk = chunk;
             current->nextCollision = NULL;
             int tableIndex = hashFunc(*current, tableSize);
-            insertHash(hashTable, tableIndex, current);
+            insertHash(*hashTable, tableIndex, *current);
 
 
 
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
                 current->chunk = chunk;
                 current->nextCollision = NULL;
                 int tableIndex = hashFunc(*current, tableSize);
-                insertHash(hashTable, tableIndex, current);
+                insertHash(*hashTable, tableIndex, *current);
         }
 
     }
@@ -124,14 +124,14 @@ int hashFunc(hashNode node, int tableSize){
     return ((node.chunk[0]) + (27 * node.chunk[1]) + (729 * node.chunk[2])) % tableSize;
 }
 
-void insertHash(hashNode hashTable[], int tableIndex, hashNode &node){
+void insertHash(hashNode *hashTable[], int tableIndex, hashNode &node){
     if (hashTable[tableIndex] == NULL) {                        //if empty, add file node
-        hashTable[tableIndex] = node;
+        hashTable[tableIndex] = &node;
     }
     else {                                                      //if not empty, add to head of linked list
-        hashNode temp = hashTable[tableIndex];
-        hashTable[tableIndex] = node;
-        node.nextCollision = &temp;
+        hashNode *temp = hashTable[tableIndex];
+        hashTable[tableIndex] = &node;
+        node.nextCollision = temp;
     }
 
 }
