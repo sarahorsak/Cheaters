@@ -23,7 +23,6 @@ struct collision{
 };
 
 string makeString(queue<string> words);
-int hashFunc(hashNode node, int tableSize);
 void insertHash(hashNode *hashTable[], int tableIndex, hashNode &node);
 bool compareCollision(collision *c1, collision *c2);
 int getdir (string dir, vector<string> &files);
@@ -46,17 +45,28 @@ int getdir (string dir, vector<string> &files){
 
 int main(int argc, char *argv[])
 {
-    string dir = string("sm_doc_set");
+    string dir = string(argv[1]);
     vector<string> files = vector<string>();
+
+    int lengthOfChunks = atoi(argv[2]);
+    cout << "FINDING CHUNKS OF " << lengthOfChunks;
+    int num_similar = atoi(argv[3]);
+    cout << "WITH COLLISIONS OVER " << num_similar;
 
     getdir(dir,files);
 
-    for (unsigned int i = 0;i < files.size();i++) {
+    for(int i=0; i<files.size(); i++){                  //removes file if . or ..
+        if(files[i] == "." || files[i] == ".."){
+            files.erase(files.begin()+i);
+            i--;
+        }
+    }
+
+    for (unsigned int i = 0; i < files.size(); i++) {
         cout << i << files[i] << endl;
     }
 
-    int lengthOfChunks = atoi(argv[2]);
-    int num_similar = atoi(argv[3]);
+
     static const int tableSize = 700001; //random prime number
 
 
@@ -78,7 +88,8 @@ int main(int argc, char *argv[])
      for (int i = 0; i < files.size(); i++){
          //open first file
          ifstream myfile;
-         myfile.open(files[i].c_str());
+         string str = string(argv[1]) + "/" + files[i];
+         myfile.open(str.c_str());
          int fileIndex = i;
 
          //create queue
