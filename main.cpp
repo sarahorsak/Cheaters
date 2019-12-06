@@ -8,6 +8,7 @@
 #include <fstream>
 #include <bits/stdc++.h>
 
+
 using namespace std;
 
 struct hashNode{
@@ -45,30 +46,30 @@ int getdir (string dir, vector<string> &files){
 
 int main(int argc, char *argv[])
 {
+    if (argc!=4){
+        cout << "error - not right number of arguments" << endl;
+        return -1;
+    }
     string dir = string(argv[1]);
     vector<string> files = vector<string>();
 
     int lengthOfChunks = atoi(argv[2]);
     cout << "FINDING CHUNKS OF " << lengthOfChunks;
     int num_similar = atoi(argv[3]);
-    cout << "WITH COLLISIONS OVER " << num_similar;
+    cout << "WITH COLLISIONS OVER " << num_similar << endl;
 
     getdir(dir,files);
 
-    for(int i=0; i<files.size(); i++){                  //removes file if . or ..
-        if(files[i] == "." || files[i] == ".."){
-            files.erase(files.begin()+i);
-            i--;
-        }
+    for(int i=0; i<2; i++){                  //removes file if . or ..
+            files.erase(files.begin());
     }
 
     for (unsigned int i = 0; i < files.size(); i++) {
-        cout << i << files[i] << endl;
+      //  cout << i << files[i] << endl;
     }
 
 
-    static const int tableSize = 700001; //random prime number
-
+    static const int tableSize = 70001; //random prime number
 
     int grid[files.size()][files.size()];          //create a 2d array to contain number of similarities
 
@@ -87,9 +88,9 @@ int main(int argc, char *argv[])
     //for each file in the vector
      for (int i = 0; i < files.size(); i++){
          //open first file
-         ifstream myfile;
+         ifstream File;
          string str = string(argv[1]) + "/" + files[i];
-         myfile.open(str.c_str());
+         File.open(str.c_str());
          int fileIndex = i;
 
          //create queue
@@ -98,7 +99,7 @@ int main(int argc, char *argv[])
 
          //push first n words to queue
          int index = 0;
-         while ((myfile >> word) && (index < lengthOfChunks)){
+         while ((File >> word) && (index < lengthOfChunks)){
              words.push(word);
              index++;
          }
@@ -112,13 +113,13 @@ int main(int argc, char *argv[])
          current->nextCollision = NULL;
 
          //get hash key based off the chunk of words
-         int tableIndex = hash<std::string>{}(current->chunk);
+         int tableIndex = (hash<std::string>{}(current->chunk)) % tableSize;
          insertHash(hashTable, tableIndex, *current);
 
 
 
         //pop first word, push next word
-        while ((myfile >> word)){
+        while ((File >> word)){
             words.pop();
             words.push(word);
             //move to hash
@@ -129,7 +130,7 @@ int main(int argc, char *argv[])
             current->nextCollision = NULL;
 
             //get hash key based off chunk
-            int tableIndex = hash<std::string>{}(current->chunk);
+            int tableIndex = (hash<std::string>{}(current->chunk))%tableSize;
             insertHash(hashTable, tableIndex, *current);
         }
 
